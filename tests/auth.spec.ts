@@ -8,6 +8,9 @@ test.beforeEach("open base URL", async ({ page }) => {
 });
 
 test.describe("Auth tests: ", () => {
+  // already existing email address
+  const emailAddress = "9650bb31-1538-4ebc-b387-47f92ae92f93@mailslurp.net";
+  // valid password
   const password = "Test-Password-123";
 
   test("should sign up successfully", async ({ page }) => {
@@ -59,6 +62,23 @@ test.describe("Auth tests: ", () => {
     // select a standart login option
     await expect(page.getByTestId("custom-opt-out")).toBeEnabled();
     await page.getByTestId("custom-opt-out").click();
+
+    // verify that the profile page with the "Download Maltego" button is visible
+    await expect(page.getByText("Download Maltego")).toBeVisible({
+      timeout: 10000,
+    });
+  });
+
+  test("should login successfully", async ({ page }) => {
+    // navigate to the login page
+    await page.getByRole("button").click();
+
+    // fill up the login fields
+    await page.getByTestId("signInName").fill(emailAddress);
+    await page.getByTestId("password").fill(password);
+
+    // submit
+    await page.getByTestId("next").click();
 
     // verify that the profile page with the "Download Maltego" button is visible
     await expect(page.getByText("Download Maltego")).toBeVisible({
