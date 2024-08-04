@@ -1,0 +1,18 @@
+{
+  "name": "maltego-interview-challenge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.45.3",
+    "@types/node": "^22.1.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mailslurp-client": "^15.20.2"
+  }
+}
