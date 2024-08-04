@@ -2,73 +2,64 @@ require("dotenv").config();
 
 import { test, expect } from "@playwright/test";
 import MailSlurp from "mailslurp-client";
-
-test.beforeEach("open base URL", async ({ page }) => {
-  await page.goto("/");
-});
+import { WelcomePage } from "../page-objects/welcome.page";
+import { SignUpPage } from "../page-objects/sign-up-page.po";
+import { LoginPage } from "../page-objects/login-page.po";
+import { ProfilePage } from "../page-objects/profile-page.po";
+import { ForgotPasswordPage } from "../page-objects/forgot-password.po";
+import { VerificationPage } from "../page-objects/verification-page.po";
+import { TwoFactorAuthenticationPage } from "../page-objects/two-factor-authentication-page.po";
 
 test.describe("Auth tests", () => {
-  // regex for "Your code is: 123456"
-  const regex: RegExp = /Your code is:\s*(\d{6})/;
+  let welcomePage: WelcomePage;
+  let signUpPage: SignUpPage;
+  let loginPage: LoginPage;
+  let profilePage: ProfilePage;
+  let forgotPasswordPage: ForgotPasswordPage;
+  let verificationPage: VerificationPage;
+  let twoFactorAuthenticationPage: TwoFactorAuthenticationPage;
 
   // retrieve and validate the API key from .env
   const apiKey = process.env.API_KEY as string;
   expect(apiKey).toBeDefined();
+
+  // email addresses generator
   const mailslurp = new MailSlurp({ apiKey });
+
+  test.beforeAll("initialize pages", async ({ page }) => {
+    welcomePage = new WelcomePage(page);
+    signUpPage = new SignUpPage(page);
+    loginPage = new LoginPage(page);
+    profilePage = new ProfilePage(page);
+    forgotPasswordPage = new ForgotPasswordPage(page);
+    verificationPage = new VerificationPage(page);
+    twoFactorAuthenticationPage = new TwoFactorAuthenticationPage(page);
+  });
+
+  test.beforeEach("open base URL", async ({ page }) => {
+    await page.goto("/");
+  });
 
   test("should sign up successfully", async ({ page }) => {
     const password = "Test-Password-" + Date.now();
     const givenName = "Albina";
     const surname = "QA";
 
-    // navigate to the sign up page
-    await page.getByRole("button").click();
-    await page.getByTestId("createAccount").click();
-
     // create a new inbox
     const { id, emailAddress } = await mailslurp.createInbox();
 
-    // request a verification code
-    await page.getByTestId("email").fill(emailAddress);
-    await page.getByTestId("email_ver_but_send").click();
+    await welcomePage.goToLoginPage();
+    await loginPage.goToSignUpPage();
 
-    // extract the verification code
-    const email = await mailslurp.waitForLatestEmail(id);
-    const emailBody = email.body ?? "";
-    const match = regex.exec(emailBody) ?? "";
-    const code: string = match[0].slice(-6);
+    await verificationPage.requestVerificationCode(emailAddress);
+    const code = await verificationPage.extractVerificationCode(mailslurp, id);
+    await verificationPage.enterVerificationCode(code);
 
-    // enter the verification code
-    await page.getByTestId("email_ver_input").fill(code);
-    await page.getByTestId("email_ver_but_verify").click();
-
-    // fill up the remaining fields
-    await page.getByTestId("newPassword").fill(password);
-    await page.getByTestId("reenterPassword").fill(password);
-    await page.getByTestId("givenName").fill(givenName);
-    await page.getByTestId("surname").fill(surname);
-
-    // agree to the terms of use
-    await page
-      .getByTestId(
-        "extension_termsOfUseConsentChoice_AgreeToTermsOfUseConsentYes"
-      )
-      .check();
-
-    // submit
-    await page.getByTestId("continue").click();
-
-    // select a standart login option
-    await page.waitForSelector('[id="custom-opt-out"]', {
-      state: "visible",
-      timeout: 10000,
-    });
-    await page.getByTestId("custom-opt-out").click();
-
-    // verify that the profile page with the "Download Maltego" button is displayed
-    await expect(page.getByText("Download Maltego")).toBeVisible({
-      timeout: 10000,
-    });
+    await signUpPage.fillRemainingFields(password, givenName, surname);
+    await signUpPage.agreeToTermsOfUse();
+    await verificationPage.continue();
+    await twoFactorAuthenticationPage.selectStandardLogin(page);
+    await profilePage.verifyProfilePage();
   });
 
   test("should login and logout successfully", async ({ page }) => {
@@ -76,27 +67,11 @@ test.describe("Auth tests", () => {
     const defaultEmail = "9650bb31-1538-4ebc-b387-47f92ae92f93@mailslurp.net";
     const defaultPassword = "Test-Password-123";
 
-    // navigate to the login page
-    await page.getByRole("button").click();
-
-    // fill up the login fields
-    await page.getByTestId("signInName").fill(defaultEmail);
-    await page.getByTestId("password").fill(defaultPassword);
-
-    // submit
-    await page.getByTestId("next").click();
-
-    // verify that the profile page with the "Download Maltego" button is displayed
-    await expect(page.getByText("Download Maltego")).toBeVisible({
-      timeout: 10000,
-    });
-
-    // logout
-    await page.locator('[aria-controls="account-menu"]').click();
-    await page.getByRole("menuitem").click();
-
-    // verify that the welcome page is displayed
-    await expect(page.getByText("Welcome")).toBeVisible();
+    await welcomePage.goToLoginPage();
+    await loginPage.login(defaultEmail, defaultPassword);
+    await profilePage.verifyProfilePage();
+    await profilePage.logout();
+    await welcomePage.verifyWelcomePage();
   });
 
   test("should reset password and then login successfully", async ({
@@ -107,45 +82,23 @@ test.describe("Auth tests", () => {
     const emailAddress = "913cae6a-0027-4a69-8b8e-49d6b470c20f@mailslurp.net";
     const newPassword = "Test-Password-NEW-" + Date.now();
 
-    // navigate to the forgot password page
-    await page.getByRole("button").click();
-    await page.getByTestId("forgotPassword").click();
+    await welcomePage.goToLoginPage();
+    await loginPage.goToForgotPasswordPage();
 
-    // request a verification code
-    await page.getByTestId("email").fill(emailAddress);
-    await page.getByTestId("email_ver_but_send").click();
-
-    // extract the verification code
-    const email = await mailslurp.waitForLatestEmail(
-      emailAddressID,
-      30000,
-      true
+    await verificationPage.requestVerificationCode(emailAddress);
+    const verificationCode = await verificationPage.extractVerificationCode(
+      mailslurp,
+      emailAddressID
     );
-    const emailBody = email.body ?? "";
-    const match = regex.exec(emailBody) ?? "";
-    const code: string = match[0].slice(-6);
+    await verificationPage.enterVerificationCode(verificationCode);
 
-    // enter the verification code
-    await page.getByTestId("email_ver_input").fill(code);
-    await page.getByTestId("email_ver_but_verify").click();
-
-    // continue
-    await page.getByTestId("continue").click();
-
-    // enter a new password
-    await page.getByTestId("newPassword").fill(newPassword);
-    await page.getByTestId("reenterPassword").fill(newPassword);
-
-    // continue
-    await page.getByTestId("continue").click();
-
-    // verify that the profile page with the "Download Maltego" button is displayed
-    await expect(page.getByText("Download Maltego")).toBeVisible({
-      timeout: 10000,
-    });
+    await verificationPage.continue();
+    await forgotPasswordPage.enterNewPassword(newPassword);
+    await verificationPage.continue();
+    await profilePage.verifyProfilePage();
   });
-});
 
-test.afterAll("close browser after running tests", async ({ page }) => {
-  await page.close();
+  test.afterAll("close browser after running tests", async ({ page }) => {
+    await page.close();
+  });
 });
