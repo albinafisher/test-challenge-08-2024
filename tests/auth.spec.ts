@@ -145,3 +145,7 @@ test.describe("Auth tests", () => {
     });
   });
 });
+
+test.afterAll("close browser after running tests", async ({ page }) => {
+  await page.close();
+});
