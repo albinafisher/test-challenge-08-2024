@@ -64,11 +64,11 @@ test.describe("Auth tests", () => {
 
   test("should login and logout successfully", async ({ page }) => {
     // existing email
-    const defaultEmail = "9650bb31-1538-4ebc-b387-47f92ae92f93@mailslurp.net";
-    const defaultPassword = "Test-Password-123";
+    const emailAddress = "9650bb31-1538-4ebc-b387-47f92ae92f93@mailslurp.net";
+    const password = "Test-Password-123";
 
     await welcomePage.goToLoginPage();
-    await loginPage.login(defaultEmail, defaultPassword);
+    await loginPage.login(emailAddress, password);
     await profilePage.verifyProfilePage();
     await profilePage.logout();
     await welcomePage.verifyWelcomePage();
@@ -96,6 +96,25 @@ test.describe("Auth tests", () => {
     await forgotPasswordPage.enterNewPassword(newPassword);
     await verificationPage.continue();
     await profilePage.verifyProfilePage();
+  });
+
+  [
+    {
+      emailAddress: "9650bb31-1538-4ebc-b387-47f92ae92f93-ERROR@mailslurp.net",
+      password: "Test-Password-123",
+      testName: "invalid login",
+    },
+    {
+      emailAddress: "9650bb31-1538-4ebc-b387-47f92ae92f93@mailslurp.net",
+      password: "Test-Password-" + Date.now(),
+      testName: "invalid password",
+    },
+  ].forEach(({ emailAddress, password, testName }) => {
+    test("should not login with " + testName, async ({ page }) => {
+      await welcomePage.goToLoginPage();
+      await loginPage.login(emailAddress, password);
+      await loginPage.verifyErrorAlert();
+    });
   });
 
   test.afterAll("close browser after running tests", async ({ page }) => {
