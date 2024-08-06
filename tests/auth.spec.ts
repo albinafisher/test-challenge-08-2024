@@ -26,7 +26,7 @@ test.describe("Auth tests", () => {
   // email addresses generator
   const mailslurp = new MailSlurp({ apiKey });
 
-  test.beforeAll("initialize pages", async ({ page }) => {
+  test.beforeEach("initialize pages and open base URL", async ({ page }) => {
     welcomePage = new WelcomePage(page);
     signUpPage = new SignUpPage(page);
     loginPage = new LoginPage(page);
@@ -34,9 +34,7 @@ test.describe("Auth tests", () => {
     forgotPasswordPage = new ForgotPasswordPage(page);
     verificationPage = new VerificationPage(page);
     twoFactorAuthenticationPage = new TwoFactorAuthenticationPage(page);
-  });
 
-  test.beforeEach("open base URL", async ({ page }) => {
     await page.goto("/");
   });
 
@@ -117,7 +115,7 @@ test.describe("Auth tests", () => {
     });
   });
 
-  test.afterAll("close browser after running tests", async ({ page }) => {
+  test.afterEach("close browser after running tests", async ({ page }) => {
     await page.close();
   });
 });

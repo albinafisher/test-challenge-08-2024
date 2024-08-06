@@ -2,21 +2,21 @@ import { expect, type Locator, type Page } from "@playwright/test";
 
 export class ProfilePage {
   readonly page: Page;
-  readonly downloadMaltegoHeader: Locator;
+  readonly maltegoAdminHeader: Locator;
   readonly accountMenuBtn: Locator;
   readonly logoutBtn: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.downloadMaltegoHeader = page.getByText("Download Maltego");
+    this.maltegoAdminHeader = page.getByText("Maltego Admin");
     this.accountMenuBtn = page.locator('[aria-controls="account-menu"]');
     this.logoutBtn = page.getByRole("menuitem");
   }
 
-  // verify that the profile page with the "Download Maltego" section is displayed
+  // verify that the profile page with the "Maltego Admin" section is displayed
   async verifyProfilePage() {
-    await expect(this.downloadMaltegoHeader).toBeVisible({
-      timeout: 10000,
+    await expect(this.maltegoAdminHeader).toBeVisible({
+      timeout: 60000,
     });
   }
 

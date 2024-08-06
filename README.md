@@ -1,20 +1,25 @@
-# Maltego Interview Challenge
+# Maltego Interview Challenge - Task 2: Writing automated auth tests using Playwright and TypeScript
 
 ---
 
-### Task 1: Building and investigating the Maltego graph
+#### Running tests:
 
-*TODO*
+##### 1) Clone the repository
 
-### Task 2: Writing automated auth tests using Playwright and TypeScript 
+`git clone https://github.com/albinafisher/maltego-interview-challenge.git`
 
-[**Repository**](https://github.com/albinafisher/maltego-interview-challenge)
+##### 2) Install dependencies
 
-### Task 3: Writing API requests for [GitHub API](https://docs.github.com/en/rest?apiVersion=2022-11-28) and [Mock API](https://mockapi.io/)
+`npm ci`
 
-You can download the collection from [**Google Drive**](https://drive.google.com/drive/folders/16vPfl5toYm3q4eHREMPqHunL7YPAX0a9?usp=sharing) or fork it from [**Postman**](https://www.postman.com/descent-module-administrator-11560990/workspace/maltego-interview-challenge/overview) directly.
-*Please note that you will have to fill in the variables with your own data!*
+##### 3) Install Playwright browsers
 
----
+`npx playwright install`
 
-[**Presentation**](https://docs.google.com/presentation/d/1ysk1UnQEMqKkMOq9kY-DrqIi8M9mTSFTkqe5IgIx47U/edit?usp=sharing)
+##### 4) Copy configuration file and fill values inside the .env file ([MailSlurp](https://www.mailslurp.com/) API key)
+
+`cp .env.example .env`
+
+##### 5) Run tests
+
+`npx playwright test`

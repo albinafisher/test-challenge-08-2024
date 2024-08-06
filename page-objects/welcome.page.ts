@@ -14,7 +14,7 @@ export class WelcomePage {
     await this.logInButton.click();
   }
 
-  // verify that the profile page with the "Download Maltego" button is displayed
+  // verify that the welcome page with the "Log In" button is displayed
   async verifyWelcomePage() {
     await expect(this.logInButton).toBeVisible({
       timeout: 10000,
