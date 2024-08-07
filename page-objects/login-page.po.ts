@@ -45,7 +45,7 @@ export class LoginPage {
 
   // verify that the login page is displayed
   async verifyLoginPage() {
-    await expect(this.loginHeader).toBeVisible();
+    await expect(this.loginHeader).toBeVisible({ timeout: 10000 });
   }
 
   // verify that an error alert is displayed

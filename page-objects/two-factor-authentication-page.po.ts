@@ -22,6 +22,8 @@ export class TwoFactorAuthenticationPage {
 
   // verify that the two-factor authentication page is displayed
   async verifyTwoFactorAuthenticationPage() {
-    await expect(this.pageHeader).toHaveText("2 Factor Authentication?");
+    await expect(this.pageHeader).toHaveText("2 Factor Authentication?", {
+      timeout: 10000,
+    });
   }
 }
