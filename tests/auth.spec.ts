@@ -64,6 +64,8 @@ test.describe("Auth tests", () => {
     await twoFactorAuthenticationPage.verifyTwoFactorAuthenticationPage();
     await twoFactorAuthenticationPage.selectStandardLogin(page);
     await profilePage.verifyProfilePage();
+
+    await mailslurp.deleteInbox(id);
   });
 
   test("should login and logout successfully", async ({ page }) => {
