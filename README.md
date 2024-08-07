@@ -1,4 +1,4 @@
-## Maltego Interview Challenge - Task 2: Writing automated auth tests using Playwright and TypeScript
+## Task 2: Writing automated auth tests using Playwright and TypeScript
 
 #### Running tests:
 

@@ -36,6 +36,7 @@ test.describe("Auth tests", () => {
     twoFactorAuthenticationPage = new TwoFactorAuthenticationPage(page);
 
     await page.goto("/");
+    await welcomePage.verifyWelcomePage();
   });
 
   test("should sign up successfully", async ({ page }) => {
@@ -47,15 +48,20 @@ test.describe("Auth tests", () => {
     const { id, emailAddress } = await mailslurp.createInbox();
 
     await welcomePage.goToLoginPage();
+    await loginPage.verifyLoginPage();
+
     await loginPage.goToSignUpPage();
+    await verificationPage.verifyVerificationPage("Signup for maltego");
 
     await verificationPage.requestVerificationCode(emailAddress);
     const code = await verificationPage.extractVerificationCode(mailslurp, id);
     await verificationPage.enterVerificationCode(code);
+    await verificationPage.verifyVerificationSuccess();
 
     await signUpPage.fillRemainingFields(password, givenName, surname);
     await signUpPage.agreeToTermsOfUse();
     await verificationPage.continue();
+    await twoFactorAuthenticationPage.verifyTwoFactorAuthenticationPage();
     await twoFactorAuthenticationPage.selectStandardLogin(page);
     await profilePage.verifyProfilePage();
   });
@@ -66,6 +72,7 @@ test.describe("Auth tests", () => {
     const password = "Test-Password-123";
 
     await welcomePage.goToLoginPage();
+    await loginPage.verifyLoginPage();
     await loginPage.login(emailAddress, password);
     await profilePage.verifyProfilePage();
     await profilePage.logout();
@@ -81,7 +88,9 @@ test.describe("Auth tests", () => {
     const newPassword = "Test-Password-NEW-" + Date.now();
 
     await welcomePage.goToLoginPage();
+    await loginPage.verifyLoginPage();
     await loginPage.goToForgotPasswordPage();
+    await verificationPage.verifyVerificationPage("Forgot Your Password?");
 
     await verificationPage.requestVerificationCode(emailAddress);
     const verificationCode = await verificationPage.extractVerificationCode(
@@ -89,8 +98,9 @@ test.describe("Auth tests", () => {
       emailAddressID
     );
     await verificationPage.enterVerificationCode(verificationCode);
-
+    await verificationPage.verifyVerificationSuccess();
     await verificationPage.continue();
+
     await forgotPasswordPage.enterNewPassword(newPassword);
     await verificationPage.continue();
     await profilePage.verifyProfilePage();
@@ -110,6 +120,7 @@ test.describe("Auth tests", () => {
   ].forEach(({ emailAddress, password, testName }) => {
     test("should not login with " + testName, async ({ page }) => {
       await welcomePage.goToLoginPage();
+      await loginPage.verifyLoginPage();
       await loginPage.login(emailAddress, password);
       await loginPage.verifyErrorAlert();
     });

@@ -2,6 +2,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 
 export class LoginPage {
   readonly page: Page;
+  readonly loginHeader: Locator;
   readonly emailInput: Locator;
   readonly passwordInput: Locator;
   readonly forgotPasswordBtn: Locator;
@@ -13,6 +14,7 @@ export class LoginPage {
 
   constructor(page: Page) {
     this.page = page;
+    this.loginHeader = page.getByText("Log in to Maltego");
     this.emailInput = page.getByTestId("signInName");
     this.passwordInput = page.getByTestId("password");
     this.forgotPasswordBtn = page.getByTestId("forgotPassword");
@@ -41,7 +43,12 @@ export class LoginPage {
     await this.submitBtn.click();
   }
 
-  // verify that an error alert with the error text is displayed
+  // verify that the login page is displayed
+  async verifyLoginPage() {
+    await expect(this.loginHeader).toBeVisible();
+  }
+
+  // verify that an error alert is displayed
   async verifyErrorAlert() {
     await expect(this.errorAlert).toHaveText(this.errorText, {
       timeout: 10000,
