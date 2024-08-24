@@ -1,10 +1,10 @@
-## Task 2: Writing automated auth tests using Playwright and TypeScript
+# Test Challenge (August 2024)
 
-#### Running tests:
+### Running tests:
 
 ##### 1) Clone the repository
 
-`git clone https://github.com/albinafisher/maltego-interview-challenge.git`
+`git clone https://github.com/albinafisher/test-challenge-08-2024.git`
 
 ##### 2) Install dependencies
 
@@ -21,3 +21,8 @@
 ##### 5) Run tests
 
 `npx playwright test`
+
+### Postman API requests
+
+You can fork the collection from [Postman](https://www.postman.com/descent-module-administrator-11560990/workspace/maltego-interview-challenge/overview) directly.
+*Please note that you will have to fill in the variables with your own data!*
